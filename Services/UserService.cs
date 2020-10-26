@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using WebApi.Entities;
 using WebApi.Helpers;
 
@@ -59,6 +60,15 @@ namespace WebApi.Services
             // validation
             if (string.IsNullOrWhiteSpace(password))
                 throw new AppException("Password is required");
+
+            // validating if a password has atleast a number, uppercase letter and a minimum of 8 characters.
+            var hasNumber = new Regex(@"[0-9]+");
+            var hasUpperChar = new Regex(@"[A-Z]+");
+            var hasMinimum8Chars = new Regex(@".{8,}");
+
+            var isPasswordStrongEnough = hasNumber.IsMatch(password) && hasUpperChar.IsMatch(password) && hasMinimum8Chars.IsMatch(password);
+            if (!isPasswordStrongEnough)
+                throw new AppException("Password is weak !. Please make sure password includes atleast a number, an uppercase letter and a minimum of 8 characters");
 
             if (_context.Users.Any(x => x.Username == user.Username))
                 throw new AppException("Username \"" + user.Username + "\" is already taken");
